@@ -39,13 +39,19 @@ for (var i=0; i < hAPI.length; i++) {
 console.log(H);
 
 //var encrypted = spritzjs.encrypt(K, M);       // "encrypted" now contains ciphertext C
-var encrypted = spritzjs.encrypt(Z, H); 
-
 //console.log(encrypted.length === M.length);   // -> true
 //console.log(encrypted);                          // -> [27, 217, 247,..., 165]
 
+var encrypted = spritzjs.encrypt(Z, H);
+
+var aeaded = spritzjs.aead(K, Z, H, M, r);
+console.log(aeaded.length === M.length);   // -> false (M.lenght+'|'+r)
+console.log(aeaded);                          // -> [ 116,  79,  187,...,  94]
+
+
 //var decrypted = spritzjs.decrypt(K, encrypted);
 var decrypted = spritzjs.decrypt(Z, encrypted);
+
 
 //for (var i = 0; i < decrypted.length; i++) {
 //    if (M[i] !== decrypted[i]) throw new Error("I shouldn't be thrown");

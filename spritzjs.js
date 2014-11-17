@@ -464,24 +464,60 @@ MAC(K,M,r)
 3 Absorb(M ); AbsorbStop()
 4 Absorb(r)
 5 return Squeeze(r )
+*/
 
-AEAD(K,Z,H,M,r)
-1 InitializeState()
-2 Absorb(K ); AbsorbStop()
-3 Absorb(Z ); AbsorbStop()
-4 Absorb(H ); AbsorbStop()
-5 DivideMintoblocksM1,M2,...,Mt,
-each N/4 bytes long except possibly the last.
-6 fori=1tot
-7 Output Ci = Mi + Squeeze(Mi . length )
-8 Absorb(Ci )
-9 AbsorbStop()
-6
-10 11
-Absorb(r)
-Output Squeeze(r )
+  /*
+  AEAD(K,Z,H,M,r)
+  1  InitializeState()
+  2  Absorb(K ); AbsorbStop()
+  3  Absorb(Z ); AbsorbStop()
+  4  Absorb(H ); AbsorbStop()
+  5  Divide M intoblocks M1,M2,...,Mt, each N/4 bytes long except possibly the last.
+  6  for i=1 to t
+  7      Output Ci = Mi + Squeeze(Mi . length )
+  8      Absorb(Ci )
+  9  AbsorbStop()
+  10 Absorb(r)
+  11 Output Squeeze(r )
 
   */
+
+  function aead(K,Z,H,M,r) {
+
+   var C = []
+      , stream
+      , i
+      ;
+
+    if (!(Array.prototype.slice.call(arguments).length === 5
+        && Array.isArray(K)
+        && K.length > 0
+        && Array.isArray(Z)
+        && Z.length > 0
+        && Array.isArray(H)
+        && H.length > 0
+        && Array.isArray(M)
+        && M.length > 0
+        && typeof r === 'number'
+        && r > 0)) return false;  // consider integer check for r
+
+    //initializeState();
+    keySetup(K); absorbStop();
+    absorb(Z); absorbStop();
+    absorb(H); absorbStop();
+
+    stream = squeeze(M.length);
+    for (i = 0; i < M.length; i++) {
+      C[i] = madd(M[i], stream[i]);
+      // NB. this could be xor instead of modulo addition
+    }
+    absorbStop();
+
+    absorb([r & 0xff]);           // NB. restricted(!) to 255-byte hashes
+    return C.concat('|').concat(squeeze(r));
+  }
+
+
 
 
   /******************
@@ -573,6 +609,7 @@ Output Squeeze(r )
     , decrypt: decrypt
     , encryptWithIV: encryptWithIV
     , decryptWithIV: decryptWithIV
+    , aead: aead
 
     /* core functions */
     , keySetup: keySetup
