@@ -42,7 +42,7 @@ console.log(H);
 //console.log(encrypted.length === M.length);   // -> true
 //console.log(encrypted);                          // -> [27, 217, 247,..., 165]
 
-var encrypted = spritzjs.encrypt(Z, H);
+//var encrypted = spritzjs.encrypt(Z, H);
 
 var aeaded = spritzjs.aead(K, Z, H, M, r);
 console.log(aeaded.length === M.length);   // -> false (M.lenght+'|'+r)
@@ -50,13 +50,47 @@ console.log(aeaded);                          // -> [ 116,  79,  187,...,  94]
 
 
 //var decrypted = spritzjs.decrypt(K, encrypted);
-var decrypted = spritzjs.decrypt(Z, encrypted);
-
-
 //for (var i = 0; i < decrypted.length; i++) {
 //    if (M[i] !== decrypted[i]) throw new Error("I shouldn't be thrown");
 //}
-for (var i = 0; i < decrypted.length; i++) {
-    if (H[i] !== decrypted[i]) throw new Error("I shouldn't be thrown");
+
+//var decrypted = spritzjs.decrypt(Z, encrypted);
+
+//for (var i = 0; i < decrypted.length; i++) {
+//    if (H[i] !== decrypted[i]) throw new Error("I shouldn't be thrown");
+//}
+
+
+//var i,j,temparray,chunk = 10;
+//for (i=0,j=array.length; i<j; i+=chunk) {
+//    temparray = array.slice(i,i+chunk);
+    // do whatever
+//}
+
+var split_aeaded = [];
+
+var abort = false;
+
+// We use AtH symbol
+for (var i = 0; i < aeaded.length && !abort; i++) {
+    if (aeaded[i] === String.fromCharCode(256).charCodeAt(0)) { 
+        abort = true; 
+    } else {
+        //console.log('%s - %d', String.fromCharCode(aeaded[i]), String.fromCharCode(aeaded[i]).charCodeAt(0));
+        split_aeaded[i] = aeaded[i];
+    }
+}
+
+console.log(split_aeaded);
+
+var deaeaded = spritzjs.deaead(K, Z, H, split_aeaded, r);
+
+for (var i = 0; i < deaeaded.length; i++) {
+    if (M[i] !== deaeaded[i]) throw new Error("I shouldn't be thrown");
+}
+
+//console.log(deaeaded);
+for (var i = 0; i < deaeaded.length; i++) {
+    console.log('%s - %d', String.fromCharCode(deaeaded[i]), String.fromCharCode(deaeaded[i]).charCodeAt(0));
 }
 

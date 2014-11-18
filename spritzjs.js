@@ -514,7 +514,8 @@ MAC(K,M,r)
     absorbStop();
 
     absorb([r & 0xff]);           // NB. restricted(!) to 255-byte hashes
-    return C.concat('|').concat(squeeze(r));
+    return C.concat(String.fromCharCode(256).charCodeAt(0)).concat(squeeze(r));
+    //return C;
   }
 
   function deaead(K,Z,H,C,r) {
@@ -541,8 +542,8 @@ MAC(K,M,r)
     absorb(Z); absorbStop();
     absorb(H); absorbStop();
 
-    stream = squeeze(M.length);
-    for (i = 0; i < M.length; i++) {
+    stream = squeeze(C.length);
+    for (i = 0; i < C.length; i++) {
       M[i] = msub(C[i], stream[i]);
       // NB. this could be xor instead of modulo addition
     }
