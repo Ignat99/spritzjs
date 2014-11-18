@@ -531,8 +531,8 @@ MAC(K,M,r)
         && Z.length > 0
         && Array.isArray(H)
         && H.length > 0
-        && Array.isArray(M)
-        && M.length > 0
+        && Array.isArray(C)
+        && C.length > 0
         && typeof r === 'number'
         && r > 0)) return false;  // consider integer check for r
 
