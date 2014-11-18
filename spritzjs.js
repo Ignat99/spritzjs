@@ -517,6 +517,40 @@ MAC(K,M,r)
     return C.concat('|').concat(squeeze(r));
   }
 
+  function deaead(K,Z,H,C,r) {
+
+   var M = []
+      , stream
+      , i
+      ;
+
+    if (!(Array.prototype.slice.call(arguments).length === 5
+        && Array.isArray(K)
+        && K.length > 0
+        && Array.isArray(Z)
+        && Z.length > 0
+        && Array.isArray(H)
+        && H.length > 0
+        && Array.isArray(M)
+        && M.length > 0
+        && typeof r === 'number'
+        && r > 0)) return false;  // consider integer check for r
+
+    //initializeState();
+    keySetup(K); absorbStop();
+    absorb(Z); absorbStop();
+    absorb(H); absorbStop();
+
+    stream = squeeze(M.length);
+    for (i = 0; i < M.length; i++) {
+      M[i] = msub(C[i], stream[i]);
+      // NB. this could be xor instead of modulo addition
+    }
+    absorbStop();
+
+    absorb([r & 0xff]);           // NB. restricted(!) to 255-byte hashes
+    return M;
+  }
 
 
 
@@ -610,6 +644,7 @@ MAC(K,M,r)
     , encryptWithIV: encryptWithIV
     , decryptWithIV: decryptWithIV
     , aead: aead
+    , deaead: deaead
 
     /* core functions */
     , keySetup: keySetup
